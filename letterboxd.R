@@ -8,7 +8,7 @@ watchlist <- read_csv("watchlist.csv") |>
   select(Name)
 
 # Define the API token
-api_token <- 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxOWM0MzZlOTE2MzljMGE5NjNlYWIwNjQxYTY1ZWMzMCIsIm5iZiI6MTczNzc3MDYzNi4xNTM5OTk4LCJzdWIiOiI2Nzk0NDY4YzkwMzkwZjQ4ODExODc5NGUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.4klyhCB5TiAW-3J0vCWjS20D5HmDrbplMMC36T0Svfw'
+api_token <- 'Bearer API_token'
 
 # Initialize a vector to store provider information
 providers_list <- vector("list", length = nrow(watchlist))
