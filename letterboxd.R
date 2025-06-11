@@ -3,12 +3,13 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
-
+readRenviron(".Renviron")
 # Load watchlist CSV
 watchlist <- read_csv("watchlist.csv") |> 
   select(Name)
 # Define the API token
 api_token <- Sys.getenv("MY_API_KEY")
+Sys.getenv()
 
 # Initialize a vector to store provider information
 providers_list <- vector("list", length = nrow(watchlist))
