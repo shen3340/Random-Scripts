@@ -1,14 +1,14 @@
 library(readr)
 library(httr)
 library(jsonlite)
-library(tidyverse)
+library(dplyr)
+library(tidyr)
 
 # Load watchlist CSV
 watchlist <- read_csv("watchlist.csv") |> 
   select(Name)
-
 # Define the API token
-api_token <- sys.getenv("MY_API_KEY")
+api_token <- Sys.getenv("MY_API_KEY")
 
 # Initialize a vector to store provider information
 providers_list <- vector("list", length = nrow(watchlist))
@@ -81,3 +81,4 @@ watchlist <- watchlist |>
   filter(providers != "NA") |> 
   unnest_longer(providers)
 
+View(watchlist)
