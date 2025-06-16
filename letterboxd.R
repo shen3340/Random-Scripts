@@ -3,6 +3,7 @@ library(httr)
 library(jsonlite)
 library(dplyr)
 library(tidyr)
+library(purrr)
 readRenviron(".Renviron")
 # Load watchlist CSV
 watchlist <- read_csv("watchlist.csv") |> 
@@ -13,6 +14,8 @@ Sys.getenv()
 
 # Initialize a vector to store provider information
 providers_list <- vector("list", length = nrow(watchlist))
+runtimes <- vector("numeric", length = nrow(watchlist))
+genres_list <- vector("list", length = nrow(watchlist))
 
 # Loop through each movie in the watchlist to fetch movie ID and providers
 for (i in 1:nrow(watchlist)) {
@@ -73,13 +76,43 @@ for (i in 1:nrow(watchlist)) {
     providers_list[[i]] <- NA  # No movie found for the given title
   }
   
+  detail_url <- paste0("https://api.themoviedb.org/3/movie/", movie_id)
+  detail_response <- VERB("GET", detail_url, 
+                          add_headers('Authorization' = api_token), 
+                          content_type("application/octet-stream"),
+                          accept("application/json"))
+  detail_data <- fromJSON(content(detail_response, "text", encoding = "UTF-8"))
+  
+  runtimes[i] <- detail_data$runtime
+  
+  # Safely extract genre names
+  if (!is.null(detail_data$genres) && length(detail_data$genres) > 0) {
+    if (is.data.frame(detail_data$genres)) {
+      genres_list[[i]] <- detail_data$genres$name
+    } else if (is.list(detail_data$genres)) {
+      genres_list[[i]] <- map_chr(detail_data$genres, "name")
+    } else {
+      genres_list[[i]] <- NA
+    }
+  } else {
+    genres_list[[i]] <- NA
+  }
+  
+  
 }
 
 # Add the provider information to the watchlist dataframe
 watchlist$providers <- providers_list
+watchlist$runtime <- runtimes
+watchlist$genres <- genres_list
 
 watchlist <- watchlist |> 
   filter(providers != "NA") |> 
-  unnest_longer(providers)
+  group_by(Name, runtime) %>%
+  summarise(
+    providers = paste(unique(unlist(providers)), collapse = ", "),
+    genres = paste(unique(unlist(genres)), collapse = ", "),
+    .groups = "drop"
+  )
 
 View(watchlist)
