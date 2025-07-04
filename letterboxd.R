@@ -76,7 +76,9 @@ get_movie_info <- function(title) {
 # Load watchlist and fetch movie info
 movie_list <- read_csv("watchlist.csv", show_col_types = FALSE) |>
   pull(Name) |> 
-  future_map_dfr(get_movie_info, .progress = TRUE) |> 
+  future_map_dfr(get_movie_info, .progress = TRUE) 
+
+sorted_list <- movie_list |>  
   filter(!is.na(providers), providers != "NOT FOUND")  |> 
   group_by(Name, runtime) |>
   summarise(
@@ -84,5 +86,4 @@ movie_list <- read_csv("watchlist.csv", show_col_types = FALSE) |>
     genres = clean_collapse(genres),
     .groups = "drop")
 
-# View final table
-View(movie_list)
+View(sorted_list)
